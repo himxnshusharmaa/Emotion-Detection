@@ -10,7 +10,7 @@ import string
 import joblib
 from flask import Flask, render_template, request, jsonify
 
-# Pre-defined NLTK English stopwords to prevent cold-start download failures in serverless environments
+# Pre-defined English stopwords to prevent cold-start download failures in serverless environments
 FALLBACK_STOPWORDS = {
     'a', 'about', 'above', 'after', 'again', 'against', 'ain', 'all', 'am', 'an', 'and', 'any', 'are', 'aren',
     "aren't", 'as', 'at', 'be', 'because', 'been', 'before', 'being', 'below', 'between', 'both', 'but', 'by',
@@ -36,7 +36,15 @@ try:
 except Exception:
     STOP_WORDS = FALLBACK_STOPWORDS
 
-app = Flask(__name__)
+# Resolve base project directory
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+app = Flask(
+    __name__,
+    template_folder=os.path.join(BASE_DIR, 'templates'),
+    static_folder=os.path.join(BASE_DIR, 'static')
+)
+
 # Serverless handler alias
 handler = app
 
@@ -66,7 +74,6 @@ def preprocess_text(text: str) -> str:
     return text.strip()
 
 # Load model, vectorizer, and configuration
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 MODEL_PATH = os.path.join(BASE_DIR, 'model.joblib')
 TFIDF_PATH = os.path.join(BASE_DIR, 'tfidf.joblib')
 CONFIG_PATH = os.path.join(BASE_DIR, 'emotion_config.json')
@@ -78,7 +85,7 @@ config = {}
 def load_artifacts():
     global model, tfidf, config
     if not os.path.exists(MODEL_PATH) or not os.path.exists(TFIDF_PATH):
-        raise FileNotFoundError("Model artifacts not found. Please run train_model.py first.")
+        raise FileNotFoundError(f"Model artifacts not found in {BASE_DIR}. Please run train_model.py first.")
     
     model = joblib.load(MODEL_PATH)
     tfidf = joblib.load(TFIDF_PATH)
