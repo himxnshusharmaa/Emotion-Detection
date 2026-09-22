@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EmotionSense AI — Text Emotion Detector</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="ambient-glow glow-1"></div>
+    <div class="ambient-glow glow-2"></div>
+
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="badge-pill">
+                <span class="pulse-dot"></span>
+                <span>TF-IDF + Logistic Regression ({{ model_accuracy }}% Acc)</span>
+            </div>
+            <h1 class="app-title">EmotionSense <span class="gradient-text">AI</span></h1>
+            <p class="app-subtitle">Real-time NLP sentiment & multi-class emotion classifier across 6 psychological affective states</p>
+        </header>
+
+        <!-- Main Workspace -->
+        <main class="workspace-grid">
+            <!-- Input Panel -->
+            <section class="card input-card">
+                <div class="card-header">
+                    <div class="card-title-group">
+                        <span class="icon-wrap">✍️</span>
+                        <h2>Analyze Expression</h2>
+                    </div>
+                    <span class="hint-key">Press <kbd>Ctrl</kbd> + <kbd>Enter</kbd></span>
+                </div>
+
+                <div class="textarea-wrapper">
+                    <textarea 
+                        id="text-input" 
+                        placeholder="Type or paste any sentence, journal entry, review, or emotional statement..."
+                        rows="5"
+                        maxlength="1000"
+                    ></textarea>
+                    <div class="textarea-footer">
+                        <span id="char-counter">0 / 1000 characters</span>
+                        <span id="word-counter">0 words</span>
+                    </div>
+                </div>
+
+                <!-- Action buttons -->
+                <div class="action-row">
+                    <button type="button" id="clear-btn" class="btn btn-secondary" title="Clear text">
+                        Clear
+                    </button>
+                    <button type="button" id="analyze-btn" class="btn btn-primary">
+                        <span class="btn-text">Detect Emotion</span>
+                        <span class="spinner" id="btn-spinner"></span>
+                        <span class="arrow-icon">→</span>
+                    </button>
+                </div>
+
+                <!-- Sample Prompts -->
+                <div class="samples-section">
+                    <div class="samples-title">
+                        <span>⚡ Quick Test Examples</span>
+                    </div>
+                    <div class="samples-chips" id="samples-container">
+                        <!-- Populated dynamically via JS or fallback -->
+                        <button class="chip" data-text="I just received the acceptance letter for my dream internship! I am smiling ear to ear!">
+                            😊 Joy
+                        </button>
+                        <button class="chip" data-text="I feel so hopeless and empty today, staring out the window with tears in my eyes.">
+                            😢 Sadness
+                        </button>
+                        <button class="chip" data-text="I am absolutely disgusted and furious at how unfair and rude they were to us.">
+                            😡 Anger
+                        </button>
+                        <button class="chip" data-text="Spending quiet Sunday mornings cooking breakfast with you makes me feel so deeply blessed.">
+                            💖 Love
+                        </button>
+                        <button class="chip" data-text="Hearing strange footsteps behind me in the dark alley made my heart race with terror.">
+                            😨 Fear
+                        </button>
+                        <button class="chip" data-text="I can't believe they threw me a secret party! I opened the door completely stunned!">
+                            😲 Surprise
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Results Panel -->
+            <section class="card results-card" id="results-card">
+                <!-- Empty placeholder state -->
+                <div class="empty-state" id="empty-state">
+                    <div class="empty-icon">🎭</div>
+                    <h3>No Analysis Yet</h3>
+                    <p>Enter text on the left or select any sample prompt to instantly run emotion prediction.</p>
+                </div>
+
+                <!-- Active Result Display -->
+                <div class="result-content hidden" id="result-content">
+                    <!-- Top Dominant Emotion Card -->
+                    <div class="dominant-card" id="dominant-card">
+                        <div class="dominant-emoji-wrap">
+                            <span class="dominant-emoji" id="dominant-emoji">😊</span>
+                        </div>
+                        <div class="dominant-details">
+                            <span class="dominant-label">Primary Emotion</span>
+                            <h2 class="dominant-name" id="dominant-name">Joy</h2>
+                            <p class="dominant-desc" id="dominant-desc">Feeling cheerful, happy, or elated</p>
+                        </div>
+                        <div class="confidence-badge" id="confidence-badge">
+                            <span class="conf-value" id="confidence-val">98.5%</span>
+                            <span class="conf-label">Confidence</span>
+                        </div>
+                    </div>
+
+                    <!-- Emotion Probability Breakdown -->
+                    <div class="breakdown-section">
+                        <div class="section-heading">
+                            <h3>Full Emotion Spectrum</h3>
+                            <span class="section-sub">Probabilities across all 6 classes</span>
+                        </div>
+                        <div class="breakdown-bars" id="breakdown-bars">
+                            <!-- Populated dynamically via JS -->
+                        </div>
+                    </div>
+
+                    <!-- NLP Pipeline Details Accordion -->
+                    <details class="nlp-details">
+                        <summary>
+                            <span class="summary-title">🔍 NLP Preprocessing Inspection</span>
+                            <span class="summary-arrow">▾</span>
+                        </summary>
+                        <div class="nlp-content">
+                            <div class="nlp-block">
+                                <span class="nlp-tag">Raw Input</span>
+                                <pre id="nlp-raw"></pre>
+                            </div>
+                            <div class="nlp-block">
+                                <span class="nlp-tag">Cleaned Tokens (Stopwords & Punctuation Removed)</span>
+                                <pre id="nlp-cleaned"></pre>
+                            </div>
+                        </div>
+                    </details>
+                </div>
+            </section>
+        </main>
+
+        <!-- History Section -->
+        <section class="card history-card">
+            <div class="card-header">
+                <div class="card-title-group">
+                    <span class="icon-wrap">🕒</span>
+                    <h2>Recent Predictions</h2>
+                </div>
+                <button type="button" id="clear-history-btn" class="text-btn">Clear History</button>
+            </div>
+            <div class="history-list" id="history-list">
+                <p class="history-empty">Predictions you run in this session will appear here.</p>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="app-footer">
+            <p>Trained on 16,000 annotated emotion samples &bull; Powered by scikit-learn & Flask</p>
+        </footer>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

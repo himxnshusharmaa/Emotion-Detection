@@ -1,0 +1,65 @@
+{
+  "unique_emotions": [
+    "sadness",
+    "anger",
+    "love",
+    "surprise",
+    "fear",
+    "joy"
+  ],
+  "emotion_to_id": {
+    "sadness": 0,
+    "anger": 1,
+    "love": 2,
+    "surprise": 3,
+    "fear": 4,
+    "joy": 5
+  },
+  "id_to_emotion": {
+    "0": "sadness",
+    "1": "anger",
+    "2": "love",
+    "3": "surprise",
+    "4": "fear",
+    "5": "joy"
+  },
+  "emotion_meta": {
+    "sadness": {
+      "emoji": "\ud83d\ude22",
+      "color": "#38bdf8",
+      "bg": "#0284c7",
+      "description": "Feeling sorrowful, down, or melancholy"
+    },
+    "anger": {
+      "emoji": "\ud83d\ude21",
+      "color": "#f87171",
+      "bg": "#dc2626",
+      "description": "Feeling irritated, enraged, or aggrieved"
+    },
+    "love": {
+      "emoji": "\ud83d\udc96",
+      "color": "#f472b6",
+      "bg": "#db2777",
+      "description": "Feeling affectionate, caring, or warm"
+    },
+    "surprise": {
+      "emoji": "\ud83d\ude32",
+      "color": "#fbbf24",
+      "bg": "#d97706",
+      "description": "Feeling astonishment, shock, or wonder"
+    },
+    "fear": {
+      "emoji": "\ud83d\ude28",
+      "color": "#a78bfa",
+      "bg": "#7c3aed",
+      "description": "Feeling anxious, threatened, or terrified"
+    },
+    "joy": {
+      "emoji": "\ud83d\ude0a",
+      "color": "#34d399",
+      "bg": "#059669",
+      "description": "Feeling cheerful, happy, or elated"
+    }
+  },
+  "accuracy": 0.8628125
+}
