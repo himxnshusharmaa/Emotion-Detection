@@ -1,6 +1,7 @@
 """
 Flask Backend for Emotion Detection Web Application.
 Serves the web UI and provides RESTful prediction endpoints.
+Optimized for local execution and serverless deployment (e.g. Vercel).
 """
 
 import os
@@ -8,14 +9,36 @@ import json
 import string
 import joblib
 from flask import Flask, render_template, request, jsonify
-import nltk
-from nltk.corpus import stopwords
 
-# Ensure NLTK resources
-nltk.download('stopwords', quiet=True)
-STOP_WORDS = set(stopwords.words('english'))
+# Pre-defined NLTK English stopwords to prevent cold-start download failures in serverless environments
+FALLBACK_STOPWORDS = {
+    'a', 'about', 'above', 'after', 'again', 'against', 'ain', 'all', 'am', 'an', 'and', 'any', 'are', 'aren',
+    "aren't", 'as', 'at', 'be', 'because', 'been', 'before', 'being', 'below', 'between', 'both', 'but', 'by',
+    'can', 'couldn', "couldn't", 'd', 'did', 'didn', "didn't", 'do', 'does', 'doesn', "doesn't", 'doing', 'don',
+    "don't", 'down', 'during', 'each', 'few', 'for', 'from', 'further', 'had', 'hadn', "hadn't", 'has', 'hasn',
+    "hasn't", 'have', 'haven', "haven't", 'having', 'he', 'her', 'here', 'hers', 'herself', 'him', 'himself',
+    'his', 'how', 'i', 'if', 'in', 'into', 'is', 'isn', "isn't", 'it', "it's", 'its', 'itself', 'just', 'll', 'm',
+    'ma', 'me', 'mightn', "mightn't", 'more', 'most', 'mustn', "mustn't", 'my', 'myself', 'needn', "needn't",
+    'no', 'nor', 'not', 'now', 'o', 'of', 'off', 'on', 'once', 'only', 'or', 'other', 'our', 'ours', 'ourselves',
+    'out', 'over', 'own', 're', 's', 'same', 'shan', "shan't", 'she', "she's", 'should', "should've", 'shouldn',
+    "shouldn't", 'so', 'some', 'such', 't', 'than', 'that', "that'll", 'the', 'their', 'theirs', 'them',
+    'themselves', 'then', 'there', 'these', 'they', 'this', 'those', 'through', 'to', 'too', 'under', 'until',
+    'up', 've', 'very', 'was', 'wasn', "wasn't", 'we', 'were', 'weren', "weren't", 'what', 'when', 'where',
+    'which', 'while', 'who', 'whom', 'why', 'will', 'with', 'won', "won't", 'wouldn', "wouldn't", 'y', 'you',
+    "you'd", "you'll", "you're", "you've", 'your', 'yours', 'yourself', 'yourselves'
+}
+
+try:
+    import nltk
+    from nltk.corpus import stopwords
+    nltk.download('stopwords', quiet=True)
+    STOP_WORDS = set(stopwords.words('english'))
+except Exception:
+    STOP_WORDS = FALLBACK_STOPWORDS
 
 app = Flask(__name__)
+# Serverless handler alias
+handler = app
 
 # Preprocessing helpers matching finalproject.ipynb
 def remove_punc(text: str) -> str:
@@ -62,7 +85,6 @@ def load_artifacts():
     
     with open(CONFIG_PATH, 'r', encoding='utf-8') as f:
         config = json.load(f)
-    print("Model, TF-IDF vectorizer, and emotion configuration loaded successfully.")
 
 load_artifacts()
 
@@ -183,7 +205,6 @@ def health():
     })
 
 if __name__ == '__main__':
-    # Run development server
     port = int(os.environ.get('PORT', 5000))
     print(f"Starting Flask App on http://127.0.0.1:{port}")
     app.run(host='0.0.0.0', port=port, debug=True)
